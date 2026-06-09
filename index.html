@@ -2,100 +2,85 @@
 <html lang="ar" dir="rtl">
 <head>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0; overflow: hidden; }
         .screen { display: none; width: 100%; } .active { display: block; }
         input { background: #1a1a1a; border: 2px solid #333; color: #fff; padding: 15px; width: 70%; margin: 10px; border-radius: 10px; text-align: center; }
         button { padding: 15px 30px; background: linear-gradient(145deg, #0f0, #080); border: none; font-weight: bold; cursor: pointer; border-radius: 10px; margin: 10px; width: 80%; }
         
-        .header { display: flex; justify-content: space-between; padding: 15px; font-size: 14px; border-bottom: 1px solid #333; width: 100%; }
-        .container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-direction: row-reverse; } /* عكسنا الترتيب هنا */
+        /* شريط التحميل */
+        #progress-container { width: 80%; height: 10px; background: #222; border-radius: 5px; margin: 20px auto; display: none; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: #0f0; transition: 0.3s; }
+
+        .header { display: flex; justify-content: space-between; padding: 15px; font-size: 14px; border-bottom: 1px solid #333; }
+        .container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-direction: row-reverse; }
         .apple { width: 55px; height: 55px; background: radial-gradient(circle at 30% 30%, #ff5e5e, #c00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .active-apple { background: radial-gradient(circle at 30% 30%, #0f0, #080); box-shadow: 0 0 20px #0f0; transform: scale(1.1); }
-        #console { margin: 10px; padding: 10px; background: #111; border: 1px solid #333; height: 60px; font-size: 12px; color: #fff; }
+        #console { margin: 10px; padding: 10px; background: #111; border: 1px solid #333; height: 50px; font-size: 12px; color: #fff; }
     </style>
 </head>
 <body>
 
-    <!-- 1. الباسورد العام -->
-    <div id="s1" class="screen active">
-        <h2>كلمة المرور العامة</h2>
-        <input type="password" id="pass" placeholder="أدخل الباسورد">
-        <button onclick="checkPass()">دخول</button>
+    <!-- 1. شاشة الترحيب -->
+    <div id="s0" class="screen active">
+        <h2>مرحباً بك في Radar Pro</h2>
+        <p style="font-size: 12px; color: #888;">خوارزمية ذكاء اصطناعي متطورة لتحليل النتائج</p>
+        <button onclick="goNext('s1')">ابدأ الاستخدام</button>
     </div>
 
-    <!-- 2. اختيار النظام -->
-    <div id="s2" class="screen">
-        <h3>اختر نوع الخدمة</h3>
-        <button onclick="selectSystem('trial')">تجربة مجانية</button>
-        <button onclick="selectSystem('vip')">نظام VIP</button>
-    </div>
+    <!-- 2. الباسورد -->
+    <div id="s1" class="screen"><input type="password" id="pass" placeholder="أدخل الباسورد"><button onclick="checkPass()">دخول</button></div>
+    
+    <!-- 3. اختيار النظام -->
+    <div id="s2" class="screen"><h3>اختر نوع الخدمة</h3><button onclick="selectSystem('trial')">تجربة مجانية</button><button onclick="selectSystem('vip')">نظام VIP</button></div>
+    
+    <!-- 4. ID -->
+    <div id="s3" class="screen"><input type="text" id="userid" placeholder="ID الجهاز"><button onclick="checkID()">تفعيل</button></div>
+    
+    <!-- 5. VIP Pass -->
+    <div id="s4" class="screen"><input type="password" id="vippass" placeholder="باسورد VIP"><button onclick="checkVip()">دخول VIP</button></div>
 
-    <!-- 3. الـ ID -->
-    <div id="s3" class="screen">
-        <h2>تفعيل الجهاز</h2>
-        <input type="text" id="userid" placeholder="ID الجهاز">
-        <button onclick="checkID()">تفعيل</button>
-    </div>
-
-    <!-- 4. باسورد الـ VIP -->
-    <div id="s4" class="screen">
-        <h2>باسورد الـ VIP</h2>
-        <input type="password" id="vippass" placeholder="أدخل باسورد VIP">
-        <button onclick="checkVip()">دخول</button>
-    </div>
-
-    <!-- 5. شاشة الرادار -->
+    <!-- 6. الرادار -->
     <div id="s5" class="screen">
-        <div class="header">
-            <span id="user-id-display">ID: ---</span>
-            <span id="mode-display">---</span>
-        </div>
+        <div class="header"><span id="u-id">ID: ---</span><span id="u-mode">---</span></div>
         <div class="container">
             <div class="apple">🍎</div><div class="apple">🍎</div><div class="apple">🍎</div>
             <div class="apple">🍎</div><div class="apple">🍎</div>
         </div>
+        <div id="progress-container"><div id="progress-bar"></div></div>
         <button onclick="startScan()">بدء الفحص</button>
-        <div id="console">بانتظار البدء...</div>
+        <div id="console">الجهاز جاهز</div>
     </div>
 
     <script>
         let isVip = false;
-        // الدوال المعتادة (checkPass, selectSystem, checkID, checkVip) بقيت كما هي
-        function checkPass() { if(document.getElementById('pass').value == "15253596") { document.getElementById('s1').classList.remove('active'); document.getElementById('s2').classList.add('active'); } else { alert("خطأ!"); } }
-        function selectSystem(type) { isVip = (type === 'vip'); document.getElementById('s2').classList.remove('active'); document.getElementById('s3').classList.add('active'); }
-        function checkID() { if(document.getElementById('userid').value == "20040099") { document.getElementById('user-id-display').innerText = "ID: 20040099"; document.getElementById('mode-display').innerText = isVip ? "VIP" : "تجربة مجانية"; document.getElementById('s3').classList.remove('active'); if (isVip) { document.getElementById('s4').classList.add('active'); } else { document.getElementById('s5').classList.add('active'); } } else { alert("ID غير صحيح!"); } }
-        function checkVip() { if(document.getElementById('vippass').value == "228817") { document.getElementById('s4').classList.remove('active'); document.getElementById('s5').classList.add('active'); } else { alert("باسورد VIP خطأ!"); } }
+        function goNext(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+        function checkPass() { if(document.getElementById('pass').value == "15253596") goNext('s2'); else alert("خطأ!"); }
+        function selectSystem(t) { isVip = (t=='vip'); goNext('s3'); }
+        function checkID() { if(document.getElementById('userid').value == "20040099") { document.getElementById('u-id').innerText="ID: 20040099"; document.getElementById('u-mode').innerText=isVip?"VIP":"تجربة"; isVip?goNext('s4'):goNext('s5'); } else alert("خطأ!"); }
+        function checkVip() { if(document.getElementById('vippass').value == "228817") goNext('s5'); else alert("خطأ!"); }
 
         function startScan() {
-            const apples = document.querySelectorAll('.apple');
+            const bar = document.getElementById('progress-bar');
+            const cont = document.getElementById('progress-container');
             const log = document.getElementById('console');
-            let count = 0;
-            
-            let scan = setInterval(() => {
-                apples.forEach(a => a.classList.remove('active-apple'));
-                apples[count % 5].classList.add('active-apple');
-                log.innerText = "جاري المعالجة: " + Math.random().toString(16).substr(2, 6);
-                count++;
-            }, 100);
+            cont.style.display = 'block';
+            let width = 0;
+            let run = setInterval(() => {
+                width += 2;
+                bar.style.width = width + '%';
+                log.innerText = "جاري تحليل البيانات: " + width + "%";
+                if(width >= 100) { clearInterval(run); showResult(); }
+            }, 60);
+        }
 
-            setTimeout(() => {
-                clearInterval(scan);
-                apples.forEach(a => a.classList.remove('active-apple'));
-                let winner = Math.floor(Math.random() * 5);
-                
-                // وميض 3 مرات
-                let blinkCount = 0;
-                let blink = setInterval(() => {
-                    apples[winner].classList.toggle('active-apple');
-                    blinkCount++;
-                    if(blinkCount >= 6) { 
-                        clearInterval(blink); 
-                        apples[winner].classList.add('active-apple'); // تظل منورة في النهاية؟ لا، نجعلها تطفئ
-                        setTimeout(() => apples[winner].classList.remove('active-apple'), 500);
-                        log.innerText = "تم التحديد: التفاحة رقم " + (5 - winner); 
-                    }
-                }, 300);
-            }, 3000);
+        function showResult() {
+            const apples = document.querySelectorAll('.apple');
+            let winner = Math.floor(Math.random() * 5);
+            let blink = 0;
+            let b = setInterval(() => {
+                apples[winner].classList.toggle('active-apple');
+                if(++blink >= 6) { clearInterval(b); document.getElementById('progress-container').style.display='none'; document.getElementById('console').innerText = "تم تحديد التفاحة رقم " + (5-winner); }
+            }, 300);
         }
     </script>
 </body>
