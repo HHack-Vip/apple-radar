@@ -2,71 +2,59 @@
 <html lang="ar" dir="rtl">
 <head>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0; }
-        .screen { display: none; width: 100%; }
-        .active { display: block; }
-        input { background: #111; border: 1px solid #0f0; color: #fff; padding: 15px; width: 70%; margin: 10px; border-radius: 5px; }
-        button { padding: 15px 40px; background: #0f0; color: #000; font-weight: bold; border: none; cursor: pointer; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', Courier, monospace; text-align: center; margin: 0; padding: 10px; }
+        .screen { display: none; } .active { display: block; }
         .container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-        .apple { width: 50px; height: 50px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; }
-        .active-apple { background: red; box-shadow: 0 0 20px red; }
+        .apple { width: 55px; height: 55px; background: #111; border: 2px solid #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 25px; transition: 0.1s; }
+        .active-apple { background: #0f0; box-shadow: 0 0 20px #0f0; border-color: #fff; }
+        #data-screen { border: 1px solid #0f0; padding: 10px; margin: 10px; font-size: 14px; background: #050505; height: 80px; }
+        button { padding: 15px 30px; background: #0f0; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
 <body>
-
     <div id="screen1" class="screen active">
         <h2>كلمة المرور</h2>
         <input type="password" id="pass" placeholder="أدخل الباسورد">
         <button onclick="checkPass()">دخول</button>
     </div>
 
-    <div id="screen2" class="screen">
-        <h2>معرف الجهاز (ID)</h2>
-        <input type="text" id="userid" placeholder="أدخل الـ ID">
-        <button onclick="checkID()">بدء التجربة المجانية</button>
-    </div>
-
     <div id="screen3" class="screen">
-        <h3>نظام الرادار (تجربة 3 أيام)</h3>
+        <h3>نظام الرادار الذكي</h3>
         <div class="container">
             <div class="apple">🍎</div><div class="apple">🍎</div><div class="apple">🍎</div>
             <div class="apple">🍎</div><div class="apple">🍎</div>
         </div>
-        <button onclick="startScan()">فحص</button>
-        <div id="console" style="margin-top:20px; color:#fff;">أهلاً بك في الفترة المجانية</div>
+        <button onclick="startScan()">بدء الفحص</button>
+        <div id="data-screen">بانتظار البدء...</div>
     </div>
 
     <script>
         function checkPass() {
             if(document.getElementById('pass').value == "15253596") {
                 document.getElementById('screen1').classList.remove('active');
-                document.getElementById('screen2').classList.add('active');
-            } else { alert("خطأ!"); }
-        }
-
-        function checkID() {
-            if(document.getElementById('userid').value == "20040099") {
-                let start = localStorage.getItem('startDate');
-                if (!start) {
-                    start = new Date().getTime();
-                    localStorage.setItem('startDate', start);
-                }
-                document.getElementById('screen2').classList.remove('active');
                 document.getElementById('screen3').classList.add('active');
-            } else { alert("ID خاطئ!"); }
+            } else { alert("كلمة المرور خاطئة!"); }
         }
 
         function startScan() {
-            let start = localStorage.getItem('startDate');
-            let now = new Date().getTime();
-            let daysPassed = (now - start) / (1000 * 60 * 60 * 24);
+            const apples = document.querySelectorAll('.apple');
+            const dataScreen = document.getElementById('data-screen');
+            let count = 0;
+            
+            let interval = setInterval(() => {
+                apples.forEach(a => a.classList.remove('active-apple'));
+                apples[count % 5].classList.add('active-apple');
+                dataScreen.innerText = "جاري معالجة البيانات: " + Math.random().toFixed(4) + " ...";
+                count++;
+            }, 100);
 
-            if (daysPassed <= 3) {
-                // هنا كود الرادار (نفس كود التفاحات)
-                alert("جاري الفحص...");
-            } else {
-                alert("انتهت فترة التجربة المجانية (3 أيام). تواصل مع الإدارة للتجديد!");
-            }
+            setTimeout(() => {
+                clearInterval(interval);
+                let winner = Math.floor(Math.random() * 5);
+                apples.forEach(a => a.classList.remove('active-apple'));
+                apples[winner].classList.add('active-apple');
+                dataScreen.innerText = "تم تحديد الهدف بدقة! \n التفاحة رقم " + (winner + 1) + " هي الصالحة.";
+            }, 3000);
         }
     </script>
 </body>
