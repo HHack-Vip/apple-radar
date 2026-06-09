@@ -4,8 +4,9 @@
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0; }
         .screen { display: none; } .active { display: block; }
-        input { background: #111; border: 1px solid #0f0; color: #fff; padding: 15px; width: 70%; margin: 10px; border-radius: 5px; }
-        button { padding: 15px 30px; background: #0f0; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; margin: 5px; }
+        input { background: #111; border: 1px solid #0f0; color: #fff; padding: 15px; width: 70%; margin: 10px; border-radius: 5px; text-align: center; }
+        button { padding: 15px 30px; background: #0f0; color: #000; font-weight: bold; border: none; cursor: pointer; border-radius: 5px; margin: 10px; width: 200px; }
+        .container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
         .apple { width: 50px; height: 50px; background: #222; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 25px; }
         .active-apple { background: #0f0; box-shadow: 0 0 20px #0f0; }
     </style>
@@ -13,60 +14,70 @@
 <body>
 
     <div id="s1" class="screen active">
-        <h2>كلمة المرور</h2>
+        <h2>كلمة المرور العامة</h2>
         <input type="password" id="pass" placeholder="أدخل الباسورد">
         <button onclick="checkPass()">دخول</button>
     </div>
 
     <div id="s2" class="screen">
-        <h2>أدخل ID الجهاز</h2>
-        <input type="text" id="userid" placeholder="ID الجهاز">
-        <button onclick="checkID()">تفعيل</button>
+        <h3>اختر نوع الخدمة</h3>
+        <button onclick="selectSystem('trial')">تجربة مجانية</button>
+        <button onclick="showVipPass()">نظام VIP</button>
     </div>
 
     <div id="s3" class="screen">
-        <h3>أهلاً بك، اختر نظامك</h3>
-        <button onclick="startTrial()">تجربة مجانية (3 أيام)</button>
-        <button onclick="alert('تواصل مع الإدارة للاشتراك VIP')">نظام VIP</button>
+        <h2>كلمة سر الـ VIP</h2>
+        <input type="password" id="vippass" placeholder="أدخل باسورد VIP">
+        <button onclick="checkVip()">دخول VIP</button>
     </div>
 
     <div id="s4" class="screen">
+        <h2>تفعيل الجهاز</h2>
+        <input type="text" id="userid" placeholder="أدخل الـ ID">
+        <button onclick="checkID()">تفعيل الآن</button>
+    </div>
+
+    <div id="s5" class="screen">
+        <h3>جاري الفحص...</h3>
         <div class="container">
             <div class="apple">🍎</div><div class="apple">🍎</div><div class="apple">🍎</div>
             <div class="apple">🍎</div><div class="apple">🍎</div>
         </div>
-        <button onclick="startScan()">بدء الفحص</button>
-        <div id="log">بانتظار الفحص...</div>
+        <button onclick="startScan()">بدء البحث</button>
+        <div id="log" style="margin-top:20px;"></div>
     </div>
 
     <script>
+        let selectedSystem = '';
         function checkPass() {
             if(document.getElementById('pass').value == "15253596") {
                 document.getElementById('s1').classList.remove('active');
                 document.getElementById('s2').classList.add('active');
-            }
+            } else { alert("خطأ!"); }
+        }
+        function showVipPass() {
+            selectedSystem = 'vip';
+            document.getElementById('s2').classList.remove('active');
+            document.getElementById('s3').classList.add('active');
+        }
+        function selectSystem(type) {
+            selectedSystem = type;
+            document.getElementById('s2').classList.remove('active');
+            document.getElementById('s4').classList.add('active');
+        }
+        function checkVip() {
+            if(document.getElementById('vippass').value == "228817") {
+                document.getElementById('s3').classList.remove('active');
+                document.getElementById('s4').classList.add('active');
+            } else { alert("باسورد VIP خطأ!"); }
         }
         function checkID() {
             if(document.getElementById('userid').value == "20040099") {
-                document.getElementById('s2').classList.remove('active');
-                document.getElementById('s3').classList.add('active');
-            }
+                document.getElementById('s4').classList.remove('active');
+                document.getElementById('s5').classList.add('active');
+            } else { alert("ID غير صحيح!"); }
         }
-        function startTrial() {
-            localStorage.setItem('trialStart', new Date().getTime());
-            document.getElementById('s3').classList.remove('active');
-            document.getElementById('s4').classList.add('active');
-        }
-        function startScan() {
-            let start = localStorage.getItem('trialStart');
-            let now = new Date().getTime();
-            if ((now - start) < (3 * 24 * 60 * 60 * 1000)) {
-                /* كود الرادار هنا */
-                document.getElementById('log').innerText = "تم الفحص بنجاح!";
-            } else {
-                alert("انتهت فترة التجربة!");
-            }
-        }
+        function startScan() { /* كود الرادار */ }
     </script>
 </body>
 </html>
