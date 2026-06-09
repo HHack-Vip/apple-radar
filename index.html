@@ -2,48 +2,50 @@
 <html lang="ar" dir="rtl">
 <head>
     <style>
-        body { background: #000; color: #0f0; font-family: sans-serif; text-align: center; padding: 20px; }
-        .container { display: flex; justify-content: center; gap: 10px; margin: 30px 0; }
-        .apple { width: 50px; height: 50px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; }
-        .active { background: red; box-shadow: 0 0 20px red; transform: scale(1.2); }
-        button { padding: 15px 40px; background: #0f0; border: none; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; }
-        #result { margin-top: 30px; font-size: 30px; font-weight: bold; color: #fff; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 10px; }
+        .container { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
+        .apple { width: 65px; height: 65px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; transition: 0.2s; border: 2px solid #000; }
+        .active { background: red; box-shadow: 0 0 25px red; transform: scale(1.3); border-color: #fff; }
+        button { padding: 15px 30px; background: #0f0; border: none; font-size: 20px; font-weight: bold; border-radius: 10px; cursor: pointer; color: #000; }
+        #console { margin-top: 20px; padding: 15px; border: 1px solid #0f0; background: #050505; height: 50px; font-size: 16px; display: flex; align-items: center; justify-content: center; color: #0f0; }
     </style>
 </head>
 <body>
-    <h2>نظام كشف التفاحة</h2>
-    <div class="container" id="apples">
+    <h3>نظام الرادار الذكي</h3>
+    <div class="container">
         <div class="apple">🍎</div>
         <div class="apple">🍎</div>
         <div class="apple">🍎</div>
         <div class="apple">🍎</div>
         <div class="apple">🍎</div>
     </div>
-    <button onclick="startScan()">بدء البحث عن الهدف</button>
-    <div id="result">---</div>
+    <button onclick="startScan()">بدء الفحص</button>
+    <div id="console">بانتظار أمر البدء...</div>
 
     <script>
+        function log(msg) { document.getElementById('console').innerText = msg; }
+        
         function startScan() {
             const apples = document.querySelectorAll('.apple');
-            const result = document.getElementById('result');
             let count = 0;
-            result.innerText = "جاري الفحص...";
             
-            // تفعيل "التمويه"
+            log("يتم الفحص الآن...");
             let scan = setInterval(() => {
                 apples.forEach(a => a.classList.remove('active'));
                 apples[count % 5].classList.add('active');
                 count++;
             }, 100);
 
-            // إيقاف الفحص بعد 2 ثانية
             setTimeout(() => {
+                log("يتم التحديد الآن...");
                 clearInterval(scan);
-                // تحديد التفاحة الفائزة عشوائياً
-                let winner = Math.floor(Math.random() * 5);
-                apples.forEach(a => a.classList.remove('active'));
-                apples[winner].classList.add('active');
-                result.innerText = "الهدف المكتشف: 1.23";
+                setTimeout(() => {
+                    let winner = Math.floor(Math.random() * 5);
+                    apples.forEach(a => a.classList.remove('active'));
+                    apples[winner].classList.add('active');
+                    log("تم تحديد التفاحة الصالحة: " + (winner + 1));
+                    if(navigator.vibrate) navigator.vibrate(500);
+                }, 1000);
             }, 2000);
         }
     </script>
