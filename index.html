@@ -2,46 +2,52 @@
 <html lang="ar" dir="rtl">
 <head>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0; }
-        .screen { display: none; } .active { display: block; }
-        input { background: #111; border: 1px solid #0f0; color: #fff; padding: 15px; width: 70%; margin: 10px; border-radius: 5px; text-align: center; }
-        button { padding: 15px 30px; background: #0f0; color: #000; font-weight: bold; border: none; cursor: pointer; border-radius: 5px; margin: 10px; width: 220px; }
-        .container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-        .apple { width: 50px; height: 50px; background: #222; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 25px; }
-        .active-apple { background: #0f0; box-shadow: 0 0 20px #0f0; }
+        body { background: #0a0a0a; color: #0f0; font-family: 'Segoe UI', sans-serif; text-align: center; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0; }
+        .screen { display: none; width: 100%; } .active { display: block; }
+        
+        /* تصميم أزرار 3D */
+        button { padding: 15px 30px; background: linear-gradient(145deg, #0f0, #080); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 12px; margin: 10px; width: 80%; box-shadow: 0 5px 15px rgba(0,255,0,0.3); transition: 0.3s; }
+        button:active { transform: translateY(4px); box-shadow: none; }
+        .back-btn { background: #444; color: #fff; width: auto; font-size: 12px; }
+
+        input { background: #1a1a1a; border: 2px solid #333; color: #fff; padding: 15px; width: 70%; margin: 10px; border-radius: 10px; text-align: center; }
+        
+        /* تصميم التفاحات 3D */
+        .container { display: flex; justify-content: center; gap: 15px; margin: 30px 0; }
+        .apple { width: 60px; height: 60px; background: radial-gradient(circle at 30% 30%, #ff5e5e, #c00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .active-apple { background: radial-gradient(circle at 30% 30%, #0f0, #080); box-shadow: 0 0 30px #0f0; transform: scale(1.1); }
     </style>
 </head>
 <body>
 
-    <!-- 1. الباسورد العام -->
+    <!-- الشاشات -->
     <div id="s1" class="screen active">
-        <h2>كلمة المرور العامة</h2>
+        <h2>نظام الدخول</h2>
         <input type="password" id="pass" placeholder="أدخل الباسورد">
         <button onclick="checkPass()">دخول</button>
     </div>
 
-    <!-- 2. اختيار النظام -->
     <div id="s2" class="screen">
-        <h3>مرحباً بك، اختر نظامك</h3>
+        <h3>اختر نوع الخدمة</h3>
         <button onclick="selectSystem('trial')">تجربة مجانية</button>
         <button onclick="selectSystem('vip')">نظام VIP</button>
+        <button class="back-btn" onclick="goBack('s1')">رجوع</button>
     </div>
 
-    <!-- 3. إدخال الـ ID -->
     <div id="s3" class="screen">
         <h2>تفعيل الجهاز</h2>
         <input type="text" id="userid" placeholder="أدخل الـ ID">
         <button onclick="checkID()">تفعيل</button>
+        <button class="back-btn" onclick="goBack('s2')">رجوع</button>
     </div>
 
-    <!-- 4. باسورد الـ VIP (يظهر فقط للـ VIP) -->
     <div id="s4" class="screen">
-        <h2>كلمة سر الـ VIP</h2>
+        <h2>أدخل باسورد VIP</h2>
         <input type="password" id="vippass" placeholder="باسورد VIP">
-        <button onclick="checkVip()">دخول VIP</button>
+        <button onclick="checkVip()">تأكيد</button>
+        <button class="back-btn" onclick="goBack('s3')">رجوع</button>
     </div>
 
-    <!-- 5. الرادار -->
     <div id="s5" class="screen">
         <div class="container">
             <div class="apple">🍎</div><div class="apple">🍎</div><div class="apple">🍎</div>
@@ -53,11 +59,15 @@
 
     <script>
         let isVip = false;
+        function goBack(target) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(target).classList.add('active');
+        }
         function checkPass() {
             if(document.getElementById('pass').value == "15253596") {
                 document.getElementById('s1').classList.remove('active');
                 document.getElementById('s2').classList.add('active');
-            } else { alert("الباسورد العام خطأ!"); }
+            } else { alert("الباسورد خطأ!"); }
         }
         function selectSystem(type) {
             isVip = (type === 'vip');
