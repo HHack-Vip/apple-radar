@@ -1,27 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; margin: 0; padding: 20px; }
-        #radar { width: 200px; height: 200px; border: 3px solid #0f0; border-radius: 50%; margin: 20px auto; position: relative; }
-        #num { font-size: 40px; color: #fff; margin: 20px; }
-        button { padding: 15px 30px; background: #0f0; border: none; font-weight: bold; cursor: pointer; }
+        body { background: #000; color: #0f0; font-family: sans-serif; text-align: center; padding: 20px; }
+        .container { display: flex; justify-content: center; gap: 10px; margin: 30px 0; }
+        .apple { width: 50px; height: 50px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; }
+        .active { background: red; box-shadow: 0 0 20px red; transform: scale(1.2); }
+        button { padding: 15px 40px; background: #0f0; border: none; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+        #result { margin-top: 30px; font-size: 30px; font-weight: bold; color: #fff; }
     </style>
 </head>
 <body>
-    <h3>Radar System</h3>
-    <div id="radar"></div>
-    <div id="num">0.00</div>
-    <button onclick="scan()">START SCAN</button>
+    <h2>نظام كشف التفاحة</h2>
+    <div class="container" id="apples">
+        <div class="apple">🍎</div>
+        <div class="apple">🍎</div>
+        <div class="apple">🍎</div>
+        <div class="apple">🍎</div>
+        <div class="apple">🍎</div>
+    </div>
+    <button onclick="startScan()">بدء البحث عن الهدف</button>
+    <div id="result">---</div>
+
     <script>
-        let v = [1.23, 1.54, 1.93, 2.41, 4.02, 6.71, 11.18, 27.97, 69.93, 349.68];
-        let i = 0;
-        function scan() {
-            document.getElementById('num').innerText = "Scanning...";
+        function startScan() {
+            const apples = document.querySelectorAll('.apple');
+            const result = document.getElementById('result');
+            let count = 0;
+            result.innerText = "جاري الفحص...";
+            
+            // تفعيل "التمويه"
+            let scan = setInterval(() => {
+                apples.forEach(a => a.classList.remove('active'));
+                apples[count % 5].classList.add('active');
+                count++;
+            }, 100);
+
+            // إيقاف الفحص بعد 2 ثانية
             setTimeout(() => {
-                document.getElementById('num').innerText = v[i % v.length];
-                i++;
-            }, 1500);
+                clearInterval(scan);
+                // تحديد التفاحة الفائزة عشوائياً
+                let winner = Math.floor(Math.random() * 5);
+                apples.forEach(a => a.classList.remove('active'));
+                apples[winner].classList.add('active');
+                result.innerText = "الهدف المكتشف: 1.23";
+            }, 2000);
         }
     </script>
 </body>
