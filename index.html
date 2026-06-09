@@ -2,51 +2,88 @@
 <html lang="ar" dir="rtl">
 <head>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 10px; }
-        .container { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
-        .apple { width: 65px; height: 65px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; transition: 0.2s; border: 2px solid #000; }
-        .active { background: red; box-shadow: 0 0 25px red; transform: scale(1.3); border-color: #fff; }
-        button { padding: 15px 30px; background: #0f0; border: none; font-size: 20px; font-weight: bold; border-radius: 10px; cursor: pointer; color: #000; }
-        #console { margin-top: 20px; padding: 15px; border: 1px solid #0f0; background: #050505; height: 50px; font-size: 16px; display: flex; align-items: center; justify-content: center; color: #0f0; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0; }
+        .screen { display: none; width: 100%; }
+        .active { display: block; }
+        input { background: #111; border: 1px solid #0f0; color: #fff; padding: 15px; width: 70%; margin: 10px 0; border-radius: 5px; text-align: center; }
+        button { padding: 15px 40px; background: #0f0; border: none; font-weight: bold; border-radius: 5px; color: #000; cursor: pointer; }
+        .container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+        .apple { width: 50px; height: 50px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; transition: 0.2s; }
+        .active-apple { background: red; box-shadow: 0 0 20px red; transform: scale(1.2); }
+        #console { margin-top: 20px; color: #fff; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h3>نظام الرادار الذكي</h3>
-    <div class="container">
-        <div class="apple">🍎</div>
-        <div class="apple">🍎</div>
-        <div class="apple">🍎</div>
-        <div class="apple">🍎</div>
-        <div class="apple">🍎</div>
+
+    <!-- شاشة الباسورد -->
+    <div id="screen1" class="screen active">
+        <h2>كلمة المرور</h2>
+        <input type="password" id="pass" placeholder="أدخل الباسورد">
+        <button onclick="checkPass()">دخول</button>
     </div>
-    <button onclick="startScan()">بدء الفحص</button>
-    <div id="console">بانتظار أمر البدء...</div>
+
+    <!-- شاشة الـ ID -->
+    <div id="screen2" class="screen">
+        <h2>معرف الجهاز (ID)</h2>
+        <input type="text" id="userid" placeholder="أدخل الـ ID">
+        <button onclick="checkID()">بدء الجلسة</button>
+    </div>
+
+    <!-- شاشة الرادار -->
+    <div id="screen3" class="screen">
+        <h3>نظام الفحص الذكي</h3>
+        <p>المحاولات المتبقية: <span id="tries">3</span></p>
+        <div class="container">
+            <div class="apple">🍎</div><div class="apple">🍎</div><div class="apple">🍎</div>
+            <div class="apple">🍎</div><div class="apple">🍎</div>
+        </div>
+        <button onclick="startScan()">بدء الفحص</button>
+        <div id="console">بانتظار أمر البدء...</div>
+    </div>
 
     <script>
-        function log(msg) { document.getElementById('console').innerText = msg; }
-        
-        function startScan() {
-            const apples = document.querySelectorAll('.apple');
-            let count = 0;
-            
-            log("يتم الفحص الآن...");
-            let scan = setInterval(() => {
-                apples.forEach(a => a.classList.remove('active'));
-                apples[count % 5].classList.add('active');
-                count++;
-            }, 100);
+        let tries = localStorage.getItem('tries') || 3;
+        document.getElementById('tries').innerText = tries;
 
-            setTimeout(() => {
-                log("يتم التحديد الآن...");
-                clearInterval(scan);
+        function checkPass() {
+            if(document.getElementById('pass').value == "15253596") {
+                document.getElementById('screen1').classList.remove('active');
+                document.getElementById('screen2').classList.add('active');
+            } else { alert("كلمة المرور خاطئة!"); }
+        }
+
+        function checkID() {
+            if(document.getElementById('userid').value == "20040099") {
+                document.getElementById('screen2').classList.remove('active');
+                document.getElementById('screen3').classList.add('active');
+            } else { alert("الـ ID غير صحيح!"); }
+        }
+
+        function startScan() {
+            if(tries > 0) {
+                const apples = document.querySelectorAll('.apple');
+                const log = document.getElementById('console');
+                
+                tries--;
+                localStorage.setItem('tries', tries);
+                document.getElementById('tries').innerText = tries;
+                
+                log.innerText = "يتم الفحص الآن...";
+                let count = 0;
+                let scan = setInterval(() => {
+                    apples.forEach(a => a.classList.remove('active-apple'));
+                    apples[count % 5].classList.add('active-apple');
+                    count++;
+                }, 100);
+
                 setTimeout(() => {
-                    let winner = Math.floor(Math.random() * 5);
-                    apples.forEach(a => a.classList.remove('active'));
-                    apples[winner].classList.add('active');
-                    log("تم تحديد التفاحة الصالحة: " + (winner + 1));
+                    clearInterval(scan);
+                    log.innerText = "تم تحديد التفاحة الصالحة للاختيار";
                     if(navigator.vibrate) navigator.vibrate(500);
-                }, 1000);
-            }, 2000);
+                }, 2000);
+            } else {
+                alert("انتهت محاولاتك! حاول الأسبوع القادم.");
+            }
         }
     </script>
 </body>
