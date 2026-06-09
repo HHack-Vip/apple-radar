@@ -8,7 +8,7 @@
         button { padding: 15px 30px; background: linear-gradient(145deg, #0f0, #080); border: none; font-weight: bold; cursor: pointer; border-radius: 10px; margin: 10px; width: 80%; }
         
         .header { display: flex; justify-content: space-between; padding: 15px; font-size: 14px; border-bottom: 1px solid #333; width: 100%; }
-        .container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+        .container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-direction: row-reverse; } /* عكسنا الترتيب هنا */
         .apple { width: 55px; height: 55px; background: radial-gradient(circle at 30% 30%, #ff5e5e, #c00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .active-apple { background: radial-gradient(circle at 30% 30%, #0f0, #080); box-shadow: 0 0 20px #0f0; transform: scale(1.1); }
         #console { margin: 10px; padding: 10px; background: #111; border: 1px solid #333; height: 60px; font-size: 12px; color: #fff; }
@@ -60,48 +60,41 @@
 
     <script>
         let isVip = false;
-        function checkPass() {
-            if(document.getElementById('pass').value == "15253596") {
-                document.getElementById('s1').classList.remove('active');
-                document.getElementById('s2').classList.add('active');
-            } else { alert("خطأ!"); }
-        }
-        function selectSystem(type) {
-            isVip = (type === 'vip');
-            document.getElementById('s2').classList.remove('active');
-            document.getElementById('s3').classList.add('active');
-        }
-        function checkID() {
-            if(document.getElementById('userid').value == "20040099") {
-                document.getElementById('user-id-display').innerText = "ID: 20040099";
-                document.getElementById('mode-display').innerText = isVip ? "VIP" : "تجربة مجانية";
-                document.getElementById('s3').classList.remove('active');
-                if (isVip) { document.getElementById('s4').classList.add('active'); }
-                else { document.getElementById('s5').classList.add('active'); }
-            } else { alert("ID غير صحيح!"); }
-        }
-        function checkVip() {
-            if(document.getElementById('vippass').value == "228817") {
-                document.getElementById('s4').classList.remove('active');
-                document.getElementById('s5').classList.add('active');
-            } else { alert("باسورد VIP خطأ!"); }
-        }
+        // الدوال المعتادة (checkPass, selectSystem, checkID, checkVip) بقيت كما هي
+        function checkPass() { if(document.getElementById('pass').value == "15253596") { document.getElementById('s1').classList.remove('active'); document.getElementById('s2').classList.add('active'); } else { alert("خطأ!"); } }
+        function selectSystem(type) { isVip = (type === 'vip'); document.getElementById('s2').classList.remove('active'); document.getElementById('s3').classList.add('active'); }
+        function checkID() { if(document.getElementById('userid').value == "20040099") { document.getElementById('user-id-display').innerText = "ID: 20040099"; document.getElementById('mode-display').innerText = isVip ? "VIP" : "تجربة مجانية"; document.getElementById('s3').classList.remove('active'); if (isVip) { document.getElementById('s4').classList.add('active'); } else { document.getElementById('s5').classList.add('active'); } } else { alert("ID غير صحيح!"); } }
+        function checkVip() { if(document.getElementById('vippass').value == "228817") { document.getElementById('s4').classList.remove('active'); document.getElementById('s5').classList.add('active'); } else { alert("باسورد VIP خطأ!"); } }
+
         function startScan() {
             const apples = document.querySelectorAll('.apple');
             const log = document.getElementById('console');
             let count = 0;
+            
             let scan = setInterval(() => {
                 apples.forEach(a => a.classList.remove('active-apple'));
                 apples[count % 5].classList.add('active-apple');
-                log.innerText = "جاري المعالجة: 0x" + Math.random().toString(16).substr(2, 6);
+                log.innerText = "جاري المعالجة: " + Math.random().toString(16).substr(2, 6);
                 count++;
             }, 100);
+
             setTimeout(() => {
                 clearInterval(scan);
-                let winner = Math.floor(Math.random() * 5);
                 apples.forEach(a => a.classList.remove('active-apple'));
-                apples[winner].classList.add('active-apple');
-                log.innerText = "تم التحديد بنجاح: التفاحة رقم " + (winner + 1);
+                let winner = Math.floor(Math.random() * 5);
+                
+                // وميض 3 مرات
+                let blinkCount = 0;
+                let blink = setInterval(() => {
+                    apples[winner].classList.toggle('active-apple');
+                    blinkCount++;
+                    if(blinkCount >= 6) { 
+                        clearInterval(blink); 
+                        apples[winner].classList.add('active-apple'); // تظل منورة في النهاية؟ لا، نجعلها تطفئ
+                        setTimeout(() => apples[winner].classList.remove('active-apple'), 500);
+                        log.innerText = "تم التحديد: التفاحة رقم " + (5 - winner); 
+                    }
+                }, 300);
             }, 3000);
         }
     </script>
