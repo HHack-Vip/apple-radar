@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة المغامر والكنز</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tahoma', sans-serif;
+        }
+        body {
+            background-color: #1a0f08;
+            background-image: radial-gradient(circle, #3d2314 0%, #1a0f08 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header-panel {
+            background: linear-gradient(to bottom, #d4af37, #8a6f18);
+            padding: 10px 30px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #2b1700;
+            margin-bottom: 15px;
+            border: 2px solid #ffdf73;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .game-container {
+            background: #2b1700;
+            border: 5px solid #8a6f18;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            max-width: 100%;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+        .cell {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #a67c52, #6b4c2a);
+            border: 2px solid #d4af37;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.2);
+        }
+        .cell:hover {
+            filter: brightness(1.2);
+            transform: scale(1.05);
+        }
+        .cell.revealed {
+            background: linear-gradient(135deg, #3b220c, #211306);
+            border-color: #5c4015;
+            color: #ffdf73;
+            cursor: default;
+            transform: none;
+        }
+        .cell.multiplier {
+            background: linear-gradient(135deg, #1e4d2b, #0f2615);
+            border-color: #4CAF50;
+            color: #a3ffb1;
+        }
+        .footer-panel {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 10px;
+        }
+        .box-info {
+            flex: 1;
+            background: linear-gradient(to bottom, #4a2e18, #23140a);
+            border: 2px solid #8a6f18;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+        .box-info span {
+            display: block;
+            font-size: 12px;
+            color: #d4af37;
+            margin-bottom: 5px;
+        }
+        .box-info div {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-collect {
+            background: linear-gradient(to bottom, #2ecc71, #27ae60);
+            border: 2px solid #1abc9c;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .btn-collect:hover {
+            filter: brightness(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-panel" id="status-text">اختر خلية!</div>
+
+    <div class="game-container">
+        <div class="grid" id="gameGrid"></div>
+        
+        <div class="footer-panel">
+            <div class="box-info">
+                <span>رهانك</span>
+                <div id="betAmount">EGP 1500</div>
+            </div>
+            <div class="box-info">
+                <span>الأرباح الحالية</span>
+                <div id="profitAmount">EGP 0</div>
+            </div>
+        </div>
+
+        <button class="btn-collect" onclick="collectProfit()">التقاط المكاسب</button>
+    </div>
+
+    <script>
+        const rows = 7;
+        const cols = 6;
+        let bet = 1500;
+        let currentProfit = 0;
+        let gameActive = true;
+
+        const gridElement = document.getElementById('gameGrid');
+        const statusText = document.getElementById('status-text');
+        const profitElement = document.getElementById('profitAmount');
+
+        // مصفوفة المضاعفات المحتملة في الخلايا
+        const multipliers = ['x2', 'x5', 'x1.25', 'x1.5', 'خسران', 'x2'];
+
+        function initGame() {
+            gridElement.innerHTML = '';
+            gameActive = true;
+            currentProfit = 0;
+            profitElement.innerText = `EGP ${currentProfit}`;
+            statusText.innerText = "اختر خلية!";
+
+            for (let i = 0; i < rows * cols; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = i;
+                
+                // تخزين قيمة عشوائية لكل خلية خلف الكواليس
+                const randomMultiplier = multipliers[Math.floor(Math.random() * multipliers.length)];
+                cell.dataset.value = randomMultiplier;
+
+                cell.addEventListener('click', () => handleCellClick(cell));
+                gridElement.appendChild(cell);
+            }
+        }
+
+        function handleCellClick(cell) {
+            if (!gameActive || cell.classList.contains('revealed')) return;
+
+            cell.classList.add('revealed');
+            const val = cell.dataset.value;
+
+            if (val === 'خسران') {
+                cell.innerText = '❌';
+                statusText.innerText = "خسرت الرهان! حاول مرة أخرى.";
+                gameActive = false;
+                setTimeout(initGame, 3000); // إعادة اللعبة بعد 3 ثواني
+            } else {
+                cell.classList.add('multiplier');
+                cell.innerText = val;
+                
+                // حساب الربح بناءً على المضاعف
+                let multiplierNum = parseFloat(val.replace('x', ''));
+                currentProfit = bet * multiplierNum;
+                profitElement.innerText = `EGP ${currentProfit}`;
+                statusText.innerText = "رائع! استمر أو القِط المكاسب.";
+            }
+        }
+
+        function collectProfit() {
+            if (!gameActive || currentProfit === 0) return;
+            alert(`مبروك! تم التقاط أرباح بقيمة: EGP ${currentProfit}`);
+            initGame();
+        }
+
+        // بدء اللعبة لأول مرة
+        initGame();
+    </script>
+</body>
+</html>
